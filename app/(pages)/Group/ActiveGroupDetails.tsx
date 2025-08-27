@@ -16,6 +16,9 @@ export default function ActiveGroupDetails({
     const [role, setRole] = useState<"member" | "admin">("member");
     const [adding, setAdding] = useState(false);
 
+    const [editingDesc, setEditingDesc] = useState(false);
+    const [newDesc, setNewDesc] = useState("");
+
     const fetchGroup = async () => {
         try {
             const res = await fetch("/api/group/getGroupDetails", {
@@ -36,27 +39,91 @@ export default function ActiveGroupDetails({
         fetchGroup();
     }, [groupID]);
 
+    // Add Member
     const handleAddMember = async () => {
         if (!newUser) return;
         setAdding(true);
         try {
-            const res = await fetch("/api/group/addMemberInGroup", {
+            const res = await fetch("/api/group/updateGroup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ groupID, userNumber: newUser, role }),
+                body: JSON.stringify({
+                    task: "addMember",
+                    groupID,
+                    userNumber: newUser,
+                    role,
+                }),
             });
             if (res.ok) {
-                await fetchGroup(); 
+                await fetchGroup();
                 setShowPopup(false);
                 setNewUser("");
                 setRole("member");
-            } else {
-                console.error("Failed to add member");
             }
         } catch (err) {
             console.error("Error adding member:", err);
         } finally {
             setAdding(false);
+        }
+    };
+
+    // Remove Member
+    const handleRemoveMember = async (userNumber: string, memberRole: "member" | "admin") => {
+        if (memberRole === "admin") return; // don’t remove admins
+        try {
+            const res = await fetch("/api/group/updateGroup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    task: "removeMember",
+                    groupID,
+                    userNumber,
+                }),
+            });
+            if (res.ok) await fetchGroup();
+        } catch (err) {
+            console.error("Error removing member:", err);
+        }
+    };
+
+    // Change Role
+    const handleChangeRole = async (userNumber: string, newRole: "member" | "admin") => {
+        try {
+            const res = await fetch("/api/group/updateGroup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    task: "changeRole",
+                    groupID,
+                    userNumber,
+                    role: newRole,
+                }),
+            });
+            if (res.ok) await fetchGroup();
+        } catch (err) {
+            console.error("Error changing role:", err);
+        }
+    };
+
+    // Edit Description
+    const handleEditDescription = async () => {
+        try {
+            const res = await fetch("/api/group/updateGroup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    task: "editDescription",
+                    groupID,
+                    description: newDesc,
+                }),
+            });
+            if (res.ok) {
+                await fetchGroup();
+                setEditingDesc(false);
+                setNewDesc("");
+            }
+        } catch (err) {
+            console.error("Error editing description:", err);
         }
     };
 
@@ -74,7 +141,7 @@ export default function ActiveGroupDetails({
                     ← Back
                 </button>
                 <h1 className="text-xl font-bold">{group.groupName}</h1>
-                <div className="w-10" /> {/* spacer */}
+                <div className="w-10" />
             </div>
 
             {/* Content */}
@@ -101,7 +168,41 @@ export default function ActiveGroupDetails({
                 {/* Description */}
                 <div className="text-center">
                     <h2 className="text-2xl font-bold text-gray-800">{group.groupName}</h2>
-                    <p className="text-gray-600">{group.groupDescription || "No description"}</p>
+                    {editingDesc ? (
+                        <div className="mt-2 flex gap-2 justify-center">
+                            <input
+                                type="text"
+                                value={newDesc}
+                                onChange={(e) => setNewDesc(e.target.value)}
+                                className="px-2 py-1 border rounded"
+                            />
+                            <button
+                                onClick={handleEditDescription}
+                                className="px-3 py-1 bg-green-500 text-white rounded"
+                            >
+                                Save
+                            </button>
+                            <button
+                                onClick={() => setEditingDesc(false)}
+                                className="px-3 py-1 bg-gray-300 rounded"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    ) : (
+                        <p className="text-gray-600">{group.groupDescription || "No description"}</p>
+                    )}
+                    {!editingDesc && (
+                        <button
+                            onClick={() => {
+                                setEditingDesc(true);
+                                setNewDesc(group.groupDescription || "");
+                            }}
+                            className="mt-2 px-2 py-1 text-sm bg-indigo-500 text-white rounded"
+                        >
+                            Edit
+                        </button>
+                    )}
                 </div>
 
                 {/* Members */}
@@ -116,22 +217,45 @@ export default function ActiveGroupDetails({
                         </button>
                     </div>
                     <ul className="space-y-2">
-                        {Object.entries(group.groupMemberss || {}).map(([id, role]) => (
-                            <li
-                                key={id}
-                                className="flex justify-between items-center px-3 py-2 rounded-lg bg-gradient-to-r from-indigo-50 to-purple-50 border"
-                            >
-                                <span className="font-medium text-gray-700">{id}</span>
-                                <span
-                                    className={`italic px-2 py-1 rounded-full text-sm ${role === "admin"
-                                        ? "bg-purple-200 text-purple-800"
-                                        : "bg-indigo-200 text-indigo-800"
-                                        }`}
+                        {Object.entries(group.groupMemberss || {}).map(([id, role]) => {
+                            const memberRole = role as "member" | "admin";
+                            return (
+                                <li
+                                    key={id}
+                                    className="flex justify-between items-center px-3 py-2 rounded-lg bg-gradient-to-r from-indigo-50 to-purple-50 border"
                                 >
-                                    {role as "member" | "admin"}
-                                </span>
-                            </li>
-                        ))}
+                                    <span className="font-medium text-gray-700">{id}</span>
+                                    <div className="flex items-center gap-2">
+                                        <span
+                                            className={`italic px-2 py-1 rounded-full text-sm ${
+                                                memberRole === "admin"
+                                                    ? "bg-purple-200 text-purple-800"
+                                                    : "bg-indigo-200 text-indigo-800"
+                                            }`}
+                                        >
+                                            {memberRole}
+                                        </span>
+
+                                        {memberRole !== "admin" && (
+                                            <>
+                                                <button
+                                                    onClick={() => handleChangeRole(id, "admin")}
+                                                    className="text-xs px-2 py-1 bg-green-500 text-white rounded"
+                                                >
+                                                    Promote
+                                                </button>
+                                                <button
+                                                    onClick={() => handleRemoveMember(id, memberRole)}
+                                                    className="text-xs px-2 py-1 bg-red-500 text-white rounded"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </li>
+                            );
+                        })}
                     </ul>
                 </div>
             </div>
