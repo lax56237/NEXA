@@ -11,24 +11,54 @@ export default function ActiveGroupDetails({
     const [group, setGroup] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
+    const [showPopup, setShowPopup] = useState(false);
+    const [newUser, setNewUser] = useState("");
+    const [role, setRole] = useState<"member" | "admin">("member");
+    const [adding, setAdding] = useState(false);
+
+    const fetchGroup = async () => {
+        try {
+            const res = await fetch("/api/group/getGroupDetails", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ groupID }),
+            });
+            const data = await res.json();
+            if (res.ok) setGroup(data.group);
+        } catch (err) {
+            console.error("Error fetching group details:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchGroup = async () => {
-            try {
-                const res = await fetch("/api/group/getGroupDetails", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ groupID }),
-                });
-                const data = await res.json();
-                if (res.ok) setGroup(data.group);
-            } catch (err) {
-                console.error("Error fetching group details:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchGroup();
     }, [groupID]);
+
+    const handleAddMember = async () => {
+        if (!newUser) return;
+        setAdding(true);
+        try {
+            const res = await fetch("/api/group/addMemberInGroup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ groupID, userNumber: newUser, role }),
+            });
+            if (res.ok) {
+                await fetchGroup(); 
+                setShowPopup(false);
+                setNewUser("");
+                setRole("member");
+            } else {
+                console.error("Failed to add member");
+            }
+        } catch (err) {
+            console.error("Error adding member:", err);
+        } finally {
+            setAdding(false);
+        }
+    };
 
     if (loading) return <p className="text-center text-gray-500">Loading details...</p>;
     if (!group) return <p className="text-center text-red-500">Group not found</p>;
@@ -76,7 +106,15 @@ export default function ActiveGroupDetails({
 
                 {/* Members */}
                 <div className="bg-white rounded-xl shadow p-4">
-                    <h3 className="text-lg font-semibold mb-2 text-gray-800">Members</h3>
+                    <div className="flex justify-between items-center mb-2">
+                        <h3 className="text-lg font-semibold text-gray-800">Members</h3>
+                        <button
+                            onClick={() => setShowPopup(true)}
+                            className="px-3 py-1 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
+                        >
+                            + Add
+                        </button>
+                    </div>
                     <ul className="space-y-2">
                         {Object.entries(group.groupMemberss || {}).map(([id, role]) => (
                             <li
@@ -86,8 +124,8 @@ export default function ActiveGroupDetails({
                                 <span className="font-medium text-gray-700">{id}</span>
                                 <span
                                     className={`italic px-2 py-1 rounded-full text-sm ${role === "admin"
-                                            ? "bg-purple-200 text-purple-800"
-                                            : "bg-indigo-200 text-indigo-800"
+                                        ? "bg-purple-200 text-purple-800"
+                                        : "bg-indigo-200 text-indigo-800"
                                         }`}
                                 >
                                     {role as "member" | "admin"}
@@ -97,6 +135,45 @@ export default function ActiveGroupDetails({
                     </ul>
                 </div>
             </div>
+
+            {/* Add Member Popup */}
+            {showPopup && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-xl shadow-lg w-80">
+                        <h3 className="text-lg font-semibold mb-4">Add Member</h3>
+                        <input
+                            type="text"
+                            placeholder="Enter User Number"
+                            value={newUser}
+                            onChange={(e) => setNewUser(e.target.value)}
+                            className="w-full mb-3 px-3 py-2 border rounded-lg"
+                        />
+                        <select
+                            value={role}
+                            onChange={(e) => setRole(e.target.value as "member" | "admin")}
+                            className="w-full mb-3 px-3 py-2 border rounded-lg"
+                        >
+                            <option value="member">Member</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setShowPopup(false)}
+                                className="px-3 py-1 bg-gray-300 rounded-lg"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleAddMember}
+                                disabled={adding}
+                                className="px-3 py-1 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
+                            >
+                                {adding ? "Adding..." : "Add"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
