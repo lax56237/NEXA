@@ -11,12 +11,6 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
         const { task, groupID, userNumber, role, description } = await req.json();
-        console.log("================================================");
-        console.log("task ", task);
-        console.log("groupID ", groupID);
-        console.log("userNumber ", userNumber);
-        console.log("role ", role);
-        console.log("description ", description);
         // 1. Get current logged-in user via token
         const cookieHeader = req.headers.get("cookie");
         if (!cookieHeader) {
@@ -35,16 +29,13 @@ export async function POST(req: NextRequest) {
         if (!currentUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
-        console.log("current user : ", currentUser);
         // 2. Find group
         const group = await Group.findOne({ groupID });
-        console.log("current group : ", group);
         if (!group) {
             return NextResponse.json({ error: "Group not found" }, { status: 404 });
         }
-        
+
         const currentUserRole = group.groupMemberss.get(currentUser.userNumber);
-        console.log("current currentUserRole : ", currentUserRole);
         if (!currentUserRole) {
             return NextResponse.json({ error: "You are not in this group" }, { status: 403 });
         }
@@ -98,6 +89,24 @@ export async function POST(req: NextRequest) {
                 }
                 group.groupMemberss.set(userNumber, role);
                 break;
+
+            case "exitGroup":
+                console.log("comes in exit case=============");
+                if (!group.groupMemberss.has(currentUser.userNumber)) {
+                    return NextResponse.json({ error: "You are not in this group" }, { status: 403 });
+                }
+
+                // remove from group
+                group.groupMemberss.delete(currentUser.userNumber);
+                await group.save();
+
+                // remove from user details
+                await UserDetails.updateOne(
+                    { userNumber: currentUser.userNumber },
+                    { $pull: { GroupID: groupID } }
+                );
+                break;
+
 
             default:
                 return NextResponse.json({ error: "Invalid task" }, { status: 400 });

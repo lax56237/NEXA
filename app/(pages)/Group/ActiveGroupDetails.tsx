@@ -127,6 +127,26 @@ export default function ActiveGroupDetails({
         }
     };
 
+    // Exit Group
+    const handleExitGroup = async () => {
+        try {
+            const res = await fetch("/api/group/updateGroup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    task: "exitGroup",
+                    groupID,
+                }),
+            });
+            if (res.ok) {
+                onBack(); // go back to group list after exit
+            }
+        } catch (err) {
+            console.error("Error exiting group:", err);
+        }
+    };
+
+
     if (loading) return <p className="text-center text-gray-500">Loading details...</p>;
     if (!group) return <p className="text-center text-red-500">Group not found</p>;
 
@@ -215,8 +235,18 @@ export default function ActiveGroupDetails({
                         >
                             + Add
                         </button>
+                        {/* Exit Group Button */}
+                        <div className="p-4">
+                            <button
+                                onClick={handleExitGroup}
+                                className="w-full px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                            >
+                                Exit Group
+                            </button>
+                        </div>
                     </div>
                     <ul className="space-y-2">
+
                         {Object.entries(group.groupMemberss || {}).map(([id, role]) => {
                             const memberRole = role as "member" | "admin";
                             return (
@@ -227,11 +257,10 @@ export default function ActiveGroupDetails({
                                     <span className="font-medium text-gray-700">{id}</span>
                                     <div className="flex items-center gap-2">
                                         <span
-                                            className={`italic px-2 py-1 rounded-full text-sm ${
-                                                memberRole === "admin"
-                                                    ? "bg-purple-200 text-purple-800"
-                                                    : "bg-indigo-200 text-indigo-800"
-                                            }`}
+                                            className={`italic px-2 py-1 rounded-full text-sm ${memberRole === "admin"
+                                                ? "bg-purple-200 text-purple-800"
+                                                : "bg-indigo-200 text-indigo-800"
+                                                }`}
                                         >
                                             {memberRole}
                                         </span>
