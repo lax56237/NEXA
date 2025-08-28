@@ -17,8 +17,8 @@ export interface IUserDetails extends Document {
     extraDetails: ExtraDetail[];
     userEmail: string;
     userNumber: string;
-    Groups?: string[]; // existing field (if present)
-    GroupID?: string[]; // new: array of group IDs user belongs to
+    Groups?: string[]; 
+    GroupID?: string[];
 }
 
 const userDetailsSchema = new Schema<IUserDetails>(
@@ -30,8 +30,8 @@ const userDetailsSchema = new Schema<IUserDetails>(
                 value: { type: Number, default: 0 },
             },
         ],
-        Groups: [{ type: String }], // existing
-        GroupID: [{ type: String }], // new field to store group IDs
+        Groups: [{ type: String }], 
+        GroupID: [{ type: String }], 
         userNumbers: [{ type: String }],
         extraDetails: [
             {

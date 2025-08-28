@@ -91,16 +91,13 @@ export async function POST(req: NextRequest) {
                 break;
 
             case "exitGroup":
-                console.log("comes in exit case=============");
                 if (!group.groupMemberss.has(currentUser.userNumber)) {
                     return NextResponse.json({ error: "You are not in this group" }, { status: 403 });
                 }
 
-                // remove from group
                 group.groupMemberss.delete(currentUser.userNumber);
                 await group.save();
 
-                // remove from user details
                 await UserDetails.updateOne(
                     { userNumber: currentUser.userNumber },
                     { $pull: { GroupID: groupID } }

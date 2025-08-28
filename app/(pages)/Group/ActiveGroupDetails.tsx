@@ -69,7 +69,7 @@ export default function ActiveGroupDetails({
 
     // Remove Member
     const handleRemoveMember = async (userNumber: string, memberRole: "member" | "admin") => {
-        if (memberRole === "admin") return; // don’t remove admins
+        if (memberRole === "admin") return; 
         try {
             const res = await fetch("/api/group/updateGroup", {
                 method: "POST",

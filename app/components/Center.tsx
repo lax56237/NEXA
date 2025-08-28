@@ -3,7 +3,7 @@
 import Home from "../(pages)/Home";
 import Group from "../(pages)/Group/Group";
 import Network from "../(pages)/Network";
-import Chennel from "../(pages)/Channel";
+import Chennel from "../(pages)/Channel/Channel";
 
 interface CenterProps {
     activeTab: string;
