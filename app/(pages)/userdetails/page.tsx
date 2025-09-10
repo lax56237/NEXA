@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Save, CheckCircle, Star, ArrowRight, Sparkles } from "lucide-react";
+import { User, Save, ArrowRight, Star, Sparkles, Image as ImageIcon } from "lucide-react";
+import imageCompression from "browser-image-compression";
 
 const categories = {
     Student: ["High School", "College", "Postgraduate"],
@@ -20,6 +21,7 @@ const categories = {
 export default function UserDetailPage() {
     const [username, setUsername] = useState("");
     const [selected, setSelected] = useState<{ topic: string; value: number }[]>([]);
+    const [profilePicture, setProfilePicture] = useState<string>(""); // base64
     const router = useRouter();
 
     const toggleInterest = (category: string, sub: string) => {
@@ -29,6 +31,20 @@ export default function UserDetailPage() {
             setSelected(selected.filter(i => i.topic !== topic));
         } else {
             setSelected([...selected, { topic, value: 0 }]);
+        }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const options = { maxSizeMB: 0.2, maxWidthOrHeight: 800, useWebWorker: true };
+            const compressedFile = await imageCompression(file, options);
+            const base64 = await imageCompression.getDataUrlFromFile(compressedFile);
+            setProfilePicture(base64);
+        } catch (err) {
+            console.error("Error compressing image:", err);
         }
     };
 
@@ -44,6 +60,7 @@ export default function UserDetailPage() {
                 username,
                 interests: selected,
                 extraDetails: [],
+                profilePicture, // send compressed image
             }),
         });
 
@@ -79,6 +96,7 @@ export default function UserDetailPage() {
                     <p className="text-gray-600 text-lg">Tell us about yourself to personalize your NEXA experience</p>
                 </div>
 
+                {/* Username input */}
                 <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden mb-8">
                     <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white">
                         <div className="flex items-center space-x-3">
@@ -104,6 +122,44 @@ export default function UserDetailPage() {
                     </div>
                 </div>
 
+                {/* Profile picture upload */}
+                <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden mb-8">
+                    <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white">
+                        <div className="flex items-center space-x-3">
+                            <div className="p-2 rounded-full bg-white/20">
+                                <ImageIcon size={24} />
+                            </div>
+                            <h2 className="text-2xl font-bold">Upload Profile Picture</h2>
+                        </div>
+                        <p className="text-purple-100 mt-2">Choose a profile picture (compressed automatically)</p>
+                    </div>
+
+                    <div className="p-8">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="block w-full text-sm text-gray-500 
+                                       file:mr-4 file:py-2 file:px-4
+                                       file:rounded-full file:border-0
+                                       file:text-sm file:font-semibold
+                                       file:bg-gradient-to-r file:from-purple-600 file:to-indigo-600 
+                                       file:text-white hover:file:opacity-90"
+                        />
+
+                        {profilePicture && (
+                            <div className="mt-4">
+                                <img
+                                    src={profilePicture}
+                                    alt="Preview"
+                                    className="w-32 h-32 object-cover rounded-full border-2 border-purple-400 shadow-md"
+                                />
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Interests */}
                 <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden mb-8">
                     <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
                         <div className="flex items-center space-x-3">
@@ -163,10 +219,11 @@ export default function UserDetailPage() {
                     </div>
                 </div>
 
+                {/* Save button */}
                 <div className="text-center">
                     <button
                         onClick={saveDetails}
-                        disabled={!username.trim() || selected.length === 0}
+                        disabled={!username.trim() || selected.length === 0 || !profilePicture}
                         className="group bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 px-8 rounded-2xl font-semibold text-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-3 mx-auto shadow-lg hover:shadow-xl hover:scale-105"
                     >
                         <Save size={20} />
@@ -174,22 +231,11 @@ export default function UserDetailPage() {
                         <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform duration-300" />
                     </button>
 
-                    {(!username.trim() || selected.length === 0) && (
+                    {(!username.trim() || selected.length === 0 || !profilePicture) && (
                         <p className="text-gray-500 mt-4 text-sm">
-                            Please enter a username and select at least one interest to continue
+                            Please enter a username, select at least one interest, and upload a profile picture to continue
                         </p>
                     )}
-                </div>
-
-                <div className="mt-8 text-center">
-                    <div className="inline-flex items-center space-x-2 text-gray-500 text-sm">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span>Profile Setup</span>
-                        <ArrowRight size={16} />
-                        <span>Content Discovery</span>
-                        <ArrowRight size={16} />
-                        <span>Ready to Go!</span>
-                    </div>
                 </div>
             </div>
         </div>

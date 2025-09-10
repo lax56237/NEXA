@@ -6,7 +6,6 @@ import jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
 export async function POST(req: Request) {
-
     try {
         await dbConnect();
 
@@ -29,7 +28,7 @@ export async function POST(req: Request) {
             userNumber: string;
         };
 
-        const { username, interests, extraDetails } = await req.json();
+        const { username, interests, extraDetails, profilePicture } = await req.json();
 
         if (!username) {
             console.log("❌ Missing username");
@@ -40,12 +39,14 @@ export async function POST(req: Request) {
             username,
             interests,
             extraDetails,
+            profilePicture, 
             userEmail: decoded.email,
             userNumber: decoded.userNumber,
         });
 
         return NextResponse.json({ success: true, data: userDetails });
     } catch (err) {
+        console.error("Error in createuserdetails:", err);
         return NextResponse.json({ success: false, error: "Failed to save details" }, { status: 500 });
     }
 }

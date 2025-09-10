@@ -11,6 +11,7 @@
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.12",
     "bcryptjs": "^3.0.2",
+    "browser-image-compression": "^2.0.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.540.0",
     "mongoose": "^8.17.1",

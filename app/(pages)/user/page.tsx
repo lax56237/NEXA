@@ -88,7 +88,7 @@ export default function UserPage() {
 
                 <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden mb-8">
                     <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white">
-                        <div className="flex items-center space-x-4">
+                        {/* <div className="flex items-center space-x-4">
                             <div className="p-4 rounded-full bg-white/20">
                                 <User size={32} />
                             </div>
@@ -96,7 +96,26 @@ export default function UserPage() {
                                 <h2 className="text-3xl font-bold">{details.username}</h2>
                                 <p className="text-blue-100 text-lg">NEXA Member</p>
                             </div>
+                        </div> */}
+
+                        <div className="flex items-center space-x-4">
+                            {details.profilePicture ? (
+                                <img
+                                    src={details.profilePicture}
+                                    alt="Profile"
+                                    className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
+                                />
+                            ) : (
+                                <div className="p-4 rounded-full bg-white/20">
+                                    <User size={32} />
+                                </div>
+                            )}
+                            <div>
+                                <h2 className="text-3xl font-bold">{details.username}</h2>
+                                <p className="text-blue-100 text-lg">NEXA Member</p>
+                            </div>
                         </div>
+
                     </div>
 
                     <div className="p-8">

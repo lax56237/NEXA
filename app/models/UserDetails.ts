@@ -17,8 +17,10 @@ export interface IUserDetails extends Document {
     extraDetails: ExtraDetail[];
     userEmail: string;
     userNumber: string;
+     profilePicture?: string; //new one added
     Groups?: string[]; 
     GroupID?: string[];
+    Channels?: string[]; 
 }
 
 const userDetailsSchema = new Schema<IUserDetails>(
@@ -32,6 +34,7 @@ const userDetailsSchema = new Schema<IUserDetails>(
         ],
         Groups: [{ type: String }], 
         GroupID: [{ type: String }], 
+        Channels: [{ type: String }], 
         userNumbers: [{ type: String }],
         extraDetails: [
             {
@@ -41,6 +44,10 @@ const userDetailsSchema = new Schema<IUserDetails>(
         ],
         userEmail: { type: String, required: true },
         userNumber: { type: String, required: true },
+        
+         // ✅ New profile picture field
+        profilePicture: { type: String, default: "" }, 
+        // This can hold a Base64 string or a file URL
     },
     { timestamps: true }
 );
