@@ -5,7 +5,7 @@ export default function channel() {
         <>
             <div className="relative flex flex-col items-center justify-center w-full h-screen bg-gray-100">
                 <h1>this is channel page</h1>
-                
+                <p>test purpouse</p>
             </div>
         </>
     )
