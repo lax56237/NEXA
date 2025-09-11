@@ -30,7 +30,6 @@ export default function HomePage() {
     const [userEmail, setUserEmail] = useState<string>("");
 
     const router = useRouter();
-    // Hide the floating action button when these tabs are active
     const showFab = !['channels', 'groups', 'network'].includes(activeTab.toLowerCase());
 
     useEffect(() => {
@@ -184,7 +183,6 @@ export default function HomePage() {
             <Path onChange={setActiveTab} />
             <RightSection />
             <Center activeTab={activeTab} />
-            {/* Floating Action Button */}
             {showFab && (
                 <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-40">
                     <button

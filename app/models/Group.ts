@@ -1,14 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-/**
- * Message data payload: flexible container for any message type.
- * - sender is the stable user identifier (userNumber).
- * - data holds the actual payload (text / image / video / file).
- * - image/video should be stored in compressed encoded form (encoded + mimeType)
- *   OR as an external URL (preferred for large files). Compression must be applied
- *   before saving (use your compressAndEncodeImage / compressAndEncodeVideo helpers).
- */
-
 export interface IMessageData {
     type: "text" | "image" | "video" | "file";
     // text message
@@ -74,14 +65,14 @@ const messageDataSchema = new Schema<IMessageData>(
 
 const messageSchema = new Schema<IMessage>(
     {
-        sender: { type: String, required: true }, // userNumber
+        sender: { type: String, required: true },
         data: { type: messageDataSchema, required: true },
         timestamp: { type: Date, default: Date.now },
         replyTo: { type: String, default: "" },
         reactions: { type: Schema.Types.Mixed, default: {} },
         seenBy: { type: [String], default: [] },
     },
-    { _id: true } // keep _id for each message so it can be referenced
+    { _id: true } 
 );
 
 const groupSchema = new Schema<IGroup>(
