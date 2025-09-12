@@ -53,12 +53,12 @@ export default function AddChannelForm({ onClose, onCreated }: Props) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-            <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg w-96">
-                <h2 className="text-lg font-bold mb-4">Create New Channel</h2>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 backdrop-blur-sm">
+            <form onSubmit={handleSubmit} className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-2xl shadow-xl w-96 border border-blue-100">
+                <h2 className="text-2xl font-bold mb-6 text-blue-800 text-center">Create New Channel</h2>
 
                 <input
-                    className="w-full border p-2 mb-2 rounded"
+                    className="w-full border border-blue-200 p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 bg-white bg-opacity-80"
                     placeholder="Channel Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -66,29 +66,34 @@ export default function AddChannelForm({ onClose, onCreated }: Props) {
                 />
 
                 <textarea
-                    className="w-full border p-2 mb-2 rounded"
+                    className="w-full border border-blue-200 p-3 mb-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 bg-white bg-opacity-80 min-h-[100px]"
                     placeholder="Description (optional)"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
 
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full mb-3"
-                    required
-                />
+                <div className="mb-4 bg-white bg-opacity-70 p-3 rounded-lg border border-blue-200">
+                    <p className="text-sm text-blue-700 mb-2 font-medium">Profile Image</p>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="w-full text-blue-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition-all duration-300"
+                        required
+                    />
+                </div>
 
                 {profileImage && (
-                    <img src={profileImage} alt="preview" className="w-24 h-24 rounded-full mx-auto mb-3" />
+                    <div className="mb-6 flex justify-center">
+                        <img src={profileImage} alt="preview" className="w-32 h-32 rounded-full object-cover border-4 border-blue-300 shadow-md" />
+                    </div>
                 )}
 
-                <div className="flex justify-end gap-2">
-                    <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-300 rounded">
+                <div className="flex justify-between gap-4 mt-6">
+                    <button type="button" onClick={onClose} className="px-5 py-3 bg-white border border-blue-300 rounded-lg hover:bg-gray-100 transition-colors duration-300 font-medium text-blue-800 shadow-sm">
                         Cancel
                     </button>
-                    <button type="submit" disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded">
+                    <button type="submit" disabled={loading} className="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-medium shadow-md disabled:opacity-70 disabled:cursor-not-allowed">
                         {loading ? "Creating..." : "Create"}
                     </button>
                 </div>

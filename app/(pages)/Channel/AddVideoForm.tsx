@@ -73,43 +73,60 @@ export default function AddVideoForm({ channelName, onClose, onAdded }: Props) {
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 backdrop-blur-sm">
             <form
                 onSubmit={handleSubmit}
-                className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md space-y-4"
+                className="bg-gradient-to-br from-white to-blue-50 p-8 rounded-2xl shadow-xl w-full max-w-md space-y-5 border border-blue-100"
             >
-                <h2 className="text-xl font-bold">📹 Add Video to {channelName}</h2>
+                <h2 className="text-2xl font-bold text-blue-800 text-center mb-2">📹 Add Video to {channelName}</h2>
 
                 <input
-                    className="w-full border p-2 rounded"
+                    className="w-full border border-blue-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 bg-white bg-opacity-80"
                     placeholder="Video Title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
                 />
 
-                <label className="block text-sm font-medium mt-2">Thumbnail Image</label>
-                <input type="file" accept="image/*" onChange={handleThumbnail} />
-                {thumbnailPreview && (
-                    <img src={thumbnailPreview} alt="Thumbnail" className="w-32 h-32 rounded mt-2" />
-                )}
+                <div className="bg-white bg-opacity-70 p-3 rounded-lg border border-blue-200">
+                    <label className="block text-sm font-medium text-blue-700 mb-2">Thumbnail Image</label>
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleThumbnail} 
+                        className="w-full text-blue-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition-all duration-300"
+                    />
+                    {thumbnailPreview && (
+                        <div className="mt-3 flex justify-center">
+                            <img src={thumbnailPreview} alt="Thumbnail" className="w-40 h-32 rounded-lg object-cover border-2 border-blue-300 shadow-md" />
+                        </div>
+                    )}
+                </div>
 
-                <label className="block text-sm font-medium mt-2">Video File</label>
-                <input type="file" accept="video/*" onChange={handleVideo} required />
-                <p className="text-xs text-gray-500">Video will be uploaded to server storage.</p>
+                <div className="bg-white bg-opacity-70 p-3 rounded-lg border border-blue-200">
+                    <label className="block text-sm font-medium text-blue-700 mb-2">Video File</label>
+                    <input 
+                        type="file" 
+                        accept="video/*" 
+                        onChange={handleVideo} 
+                        required 
+                        className="w-full text-blue-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition-all duration-300"
+                    />
+                    <p className="text-xs text-gray-600 mt-2 italic">Video will be uploaded to server storage.</p>
+                </div>
 
                 <textarea
-                    className="w-full border p-2 rounded mt-2"
+                    className="w-full border border-blue-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300 bg-white bg-opacity-80 min-h-[100px]"
                     placeholder="Optional description..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
 
-                <div className="flex justify-end gap-3 pt-2">
-                    <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-300 rounded">
+                <div className="flex justify-between gap-4 pt-4">
+                    <button type="button" onClick={onClose} className="px-5 py-3 bg-white border border-blue-300 rounded-lg hover:bg-gray-100 transition-colors duration-300 font-medium text-blue-800 shadow-sm">
                         Cancel
                     </button>
-                    <button type="submit" disabled={loading} className="px-4 py-2 bg-green-600 text-white rounded">
+                    <button type="submit" disabled={loading} className="px-5 py-3 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-lg hover:from-green-600 hover:to-teal-700 transition-all duration-300 font-medium shadow-md disabled:opacity-70 disabled:cursor-not-allowed">
                         {loading ? "Uploading..." : "Add Video"}
                     </button>
                 </div>
